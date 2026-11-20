@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   UploadCloud,
-  FileSpreadsheet,
   Plus,
   Search,
   Download,
@@ -9,10 +8,7 @@ import {
   Edit2,
   Check,
   X,
-  AlertTriangle,
-  Package,
-  IndianRupee,
-  Layers
+  Package
 } from "lucide-react";
 import Papa from "papaparse";
 import { InventoryItem, WorkspaceSession } from "../types";
@@ -226,7 +222,6 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
       }
     });
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -256,7 +251,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
 
         const sellerPrice = columnMapping.sellerPrice && row[columnMapping.sellerPrice] !== undefined
           ? Math.max(0, parseFloat(String(row[columnMapping.sellerPrice]).replace(/[^0-9.]/g, "")) || 0)
-          : Math.round(listingPrice * 0.45); // reasonable default estimate if missing
+          : Math.round(listingPrice * 0.45);
 
         const channel = columnMapping.channel && row[columnMapping.channel]
           ? String(row[columnMapping.channel]).trim()
@@ -284,7 +279,6 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
         };
       });
 
-    // Merge or append (if SKU exists, update it)
     setItems((prev) => {
       const map = new Map<string, InventoryItem>();
       prev.forEach((item) => map.set(item.sku.toLowerCase(), item));
@@ -375,7 +369,6 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
     document.body.removeChild(link);
   };
 
-  // Filter items
   const filteredItems = items.filter((item) => {
     const matchesSearch =
       item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -393,7 +386,6 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
     return matchesSearch && matchesChannel && matchesStock;
   });
 
-  // KPI calculations
   const totalSKUs = items.length;
   const totalUnits = items.reduce((acc, curr) => acc + curr.stock, 0);
   const totalCostValuation = items.reduce(
@@ -407,8 +399,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
   const lowStockCount = items.filter((i) => i.stock < 10).length;
 
   return (
-    <div className="space-y-6">
-      {/* Hidden file input */}
+    <div className="space-y-3 font-sans">
       <input
         type="file"
         ref={fileInputRef}
@@ -417,117 +408,61 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
         className="hidden"
       />
 
-      {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">
-            Inventory & Catalog Manager
-          </h1>
-          <p className="text-xs text-zinc-500">
-            Process catalog sheets, manage stock, and track seller cost vs listing margins.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={downloadSampleTemplate}
-            title="Download Sample CSV Template"
-            className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 bg-white hover:bg-zinc-50 border border-zinc-200 px-3 py-2 rounded-lg transition shadow-xs"
-          >
-            <Download className="w-3.5 h-3.5 text-zinc-500" />
-            <span>Sample Template</span>
-          </button>
-
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-1.5 text-xs font-medium text-zinc-700 hover:text-zinc-900 bg-white hover:bg-zinc-50 border border-zinc-200 px-3 py-2 rounded-lg transition shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Single SKU</span>
-          </button>
-
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 px-3.5 py-2 rounded-lg transition shadow-xs"
-          >
-            <UploadCloud className="w-4 h-4" />
-            <span>Upload Inventory File</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-          <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-            <span>Total SKUs</span>
-            <Package className="w-3.5 h-3.5 text-zinc-400" />
+      {/* ================= COMPACT STAT RIBBON ================= */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-zinc-50 border border-zinc-200/90 rounded-lg p-2.5 font-mono text-xs">
+        <div className="border-r border-zinc-200/80 pr-2">
+          <div className="text-[10px] text-zinc-400 uppercase">Active Catalog</div>
+          <div className="font-semibold text-zinc-900 mt-0.5">
+            {totalSKUs} SKUs <span className="text-[10px] text-zinc-400 font-normal">({totalUnits} units)</span>
           </div>
-          <div className="text-xl font-semibold text-zinc-900 mt-1">{totalSKUs}</div>
-          <div className="text-[11px] text-zinc-400 mt-0.5">{totalUnits} units total</div>
         </div>
 
-        <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-          <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-            <span>Stock Value (Cost)</span>
-            <IndianRupee className="w-3.5 h-3.5 text-zinc-400" />
-          </div>
-          <div className="text-xl font-semibold text-zinc-900 mt-1">
+        <div className="border-r border-zinc-200/80 pr-2">
+          <div className="text-[10px] text-zinc-400 uppercase">Capital Invested (Cost)</div>
+          <div className="font-semibold text-zinc-900 mt-0.5">
             ₹ {totalCostValuation.toLocaleString("en-IN")}
           </div>
-          <div className="text-[11px] text-zinc-400 mt-0.5">Capital invested</div>
         </div>
 
-        <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-          <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-            <span>Retail Valuation</span>
-            <Layers className="w-3.5 h-3.5 text-zinc-400" />
-          </div>
-          <div className="text-xl font-semibold text-zinc-900 mt-1">
+        <div className="border-r border-zinc-200/80 pr-2">
+          <div className="text-[10px] text-zinc-400 uppercase">Retail Valuation</div>
+          <div className="font-semibold text-zinc-900 mt-0.5">
             ₹ {totalRetailValuation.toLocaleString("en-IN")}
           </div>
-          <div className="text-[11px] text-emerald-600 font-medium mt-0.5">
-            ₹ {(totalRetailValuation - totalCostValuation).toLocaleString("en-IN")} potential profit
-          </div>
         </div>
 
-        <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-          <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-            <span>Low Stock SKUs</span>
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+        <div>
+          <div className="text-[10px] text-amber-600 uppercase font-semibold">Low Stock Alert</div>
+          <div className="font-semibold text-amber-700 mt-0.5">
+            {lowStockCount} SKUs <span className="text-[10px] font-normal text-amber-600">(&lt; 10 units)</span>
           </div>
-          <div className="text-xl font-semibold text-zinc-900 mt-1">
-            {lowStockCount}
-          </div>
-          <div className="text-[11px] text-amber-600 mt-0.5">Under 10 units</div>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white border border-zinc-200 rounded-xl p-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-xs">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by SKU code or product title..."
-            className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:bg-white transition"
-          />
-        </div>
+      {/* ================= DENSE DESKTOP TOOLBAR ================= */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-white border border-zinc-200/90 rounded-lg p-2 shadow-2xs">
+        {/* Search & Channel Filters */}
+        <div className="flex items-center gap-2 flex-1">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search SKU or title..."
+              className="w-full pl-8 pr-2.5 py-1 bg-zinc-50 border border-zinc-200 rounded text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:bg-white transition"
+            />
+          </div>
 
-        <div className="flex items-center gap-2">
-          {/* Channel Filter */}
-          <div className="flex items-center bg-zinc-100 p-0.5 rounded-lg border border-zinc-200/70 text-xs">
+          <div className="flex items-center bg-zinc-100 p-0.5 rounded border border-zinc-200 text-xs">
             {["All", "Amazon", "Flipkart", "Meesho"].map((ch) => (
               <button
                 key={ch}
                 onClick={() => setChannelFilter(ch)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
                   channelFilter === ch
-                    ? "bg-white text-zinc-900 shadow-xs"
-                    : "text-zinc-500 hover:text-zinc-900"
+                    ? "bg-white text-zinc-900 shadow-2xs font-semibold"
+                    : "text-zinc-500 hover:text-zinc-800"
                 }`}
               >
                 {ch}
@@ -535,45 +470,69 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
             ))}
           </div>
 
-          {/* Stock Status Filter */}
           <select
             value={stockStatusFilter}
             onChange={(e) => setStockStatusFilter(e.target.value)}
-            className="bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-700 focus:outline-none focus:border-zinc-900 transition"
+            className="bg-zinc-50 border border-zinc-200 rounded px-2 py-1 text-xs text-zinc-700 focus:outline-none"
           >
             <option value="All">All Stock Levels</option>
-            <option value="Healthy">Healthy Stock (10+)</option>
-            <option value="Low">Low Stock (&lt; 10)</option>
+            <option value="Healthy">Healthy (10+)</option>
+            <option value="Low">Low (&lt; 10)</option>
             <option value="Out">Out of Stock (0)</option>
           </select>
         </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={downloadSampleTemplate}
+            title="Download CSV Template"
+            className="flex items-center gap-1 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 bg-white hover:bg-zinc-100 border border-zinc-200 px-2.5 py-1 rounded transition"
+          >
+            <Download className="w-3 h-3 text-zinc-400" />
+            <span>Template</span>
+          </button>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-1 text-[11px] font-medium text-zinc-700 hover:text-zinc-900 bg-white hover:bg-zinc-100 border border-zinc-200 px-2.5 py-1 rounded transition"
+          >
+            <Plus className="w-3 h-3" />
+            <span>Add SKU</span>
+          </button>
+
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1 text-[11px] font-medium text-white bg-zinc-900 hover:bg-zinc-800 px-2.5 py-1 rounded transition"
+          >
+            <UploadCloud className="w-3 h-3" />
+            <span>Import Catalog</span>
+          </button>
+        </div>
       </div>
 
-      {/* Main Inventory Table */}
-      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+      {/* ================= DATA GRID / SPREADSHEET TABLE ================= */}
+      <div className="bg-white border border-zinc-200/90 rounded-lg overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-zinc-200 bg-zinc-50/60 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
-                <th className="py-3 px-4">SKU Code</th>
-                <th className="py-3 px-4">Product Title</th>
-                <th className="py-3 px-4">Channel</th>
-                <th className="py-3 px-4 text-right">Available Stock</th>
-                <th className="py-3 px-4 text-right">Seller Cost (COGS)</th>
-                <th className="py-3 px-4 text-right">Listing Price</th>
-                <th className="py-3 px-4 text-right">Gross Margin</th>
-                <th className="py-3 px-4 text-center">Actions</th>
+              <tr className="border-b border-zinc-200/90 bg-zinc-50 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider font-mono">
+                <th className="py-2 px-3">SKU Code</th>
+                <th className="py-2 px-3">Product Title</th>
+                <th className="py-2 px-3">Channel</th>
+                <th className="py-2 px-3 text-right">Available Stock</th>
+                <th className="py-2 px-3 text-right">Seller Cost (COGS)</th>
+                <th className="py-2 px-3 text-right">Listing Price</th>
+                <th className="py-2 px-3 text-right">Gross Margin</th>
+                <th className="py-2 px-3 text-center w-20">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 text-xs text-zinc-800">
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-12 text-zinc-400">
-                    <FileSpreadsheet className="w-8 h-8 mx-auto text-zinc-300 mb-2" />
-                    <div>No inventory records found.</div>
-                    <p className="text-[11px] text-zinc-400 mt-1">
-                      Upload an inventory file or adjust your search filters.
-                    </p>
+                    <Package className="w-6 h-6 mx-auto text-zinc-300 mb-1" />
+                    <div className="text-xs">No matching inventory found</div>
                   </td>
                 </tr>
               ) : (
@@ -588,110 +547,99 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
                   return (
                     <tr
                       key={item.id}
-                      className="hover:bg-zinc-50/70 transition-colors group"
+                      className="hover:bg-zinc-50/80 transition-colors group"
                     >
                       {/* SKU */}
-                      <td className="py-3 px-4 font-mono font-medium text-zinc-900">
+                      <td className="py-1.5 px-3 font-mono text-[11px] font-semibold text-zinc-900">
                         {item.sku}
                       </td>
 
                       {/* Title */}
-                      <td className="py-3 px-4 max-w-xs">
-                        <div className="truncate font-medium text-zinc-900" title={item.title}>
+                      <td className="py-1.5 px-3 max-w-xs">
+                        <div className="truncate text-xs text-zinc-800 font-medium" title={item.title}>
                           {item.title}
                         </div>
-                        <div className="text-[11px] text-zinc-400 flex items-center gap-2 mt-0.5">
-                          {item.hsn && <span>HSN: {item.hsn}</span>}
-                          {item.gstRate && <span>GST: {item.gstRate}%</span>}
+                        <div className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                          {item.hsn && <span>HSN:{item.hsn}</span>}
+                          {item.gstRate && <span className="ml-1.5">GST:{item.gstRate}%</span>}
                         </div>
                       </td>
 
                       {/* Channel */}
-                      <td className="py-3 px-4">
-                        <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200/60">
+                      <td className="py-1.5 px-3">
+                        <span className="inline-block px-1.5 py-0.2 rounded text-[10px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">
                           {item.channel}
                         </span>
                       </td>
 
                       {/* Stock */}
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-1.5 px-3 text-right font-mono">
                         {isEditing ? (
                           <input
                             type="number"
                             min="0"
                             value={editStock}
                             onChange={(e) => setEditStock(parseInt(e.target.value, 10) || 0)}
-                            className="w-16 px-1.5 py-1 text-right bg-white border border-zinc-300 rounded text-xs focus:outline-none focus:border-zinc-900"
+                            className="w-14 px-1 py-0.5 text-right bg-white border border-zinc-300 rounded text-xs focus:outline-none"
                           />
                         ) : (
-                          <div className="flex items-center justify-end gap-1.5">
-                            <span
-                              className={`font-semibold ${
-                                item.stock === 0
-                                  ? "text-rose-600"
-                                  : item.stock < 10
-                                  ? "text-amber-600"
-                                  : "text-zinc-900"
-                              }`}
-                            >
-                              {item.stock}
-                            </span>
-                            {item.stock === 0 && (
-                              <span className="text-[10px] text-rose-500 font-medium">Out</span>
-                            )}
-                          </div>
+                          <span
+                            className={`font-semibold text-xs ${
+                              item.stock === 0
+                                ? "text-rose-600 font-bold"
+                                : item.stock < 10
+                                ? "text-amber-600"
+                                : "text-zinc-800"
+                            }`}
+                          >
+                            {item.stock}
+                          </span>
                         )}
                       </td>
 
                       {/* Seller Cost */}
-                      <td className="py-3 px-4 text-right font-medium">
+                      <td className="py-1.5 px-3 text-right font-mono text-zinc-600">
                         {isEditing ? (
-                          <div className="flex items-center justify-end gap-1">
-                            <span>₹</span>
-                            <input
-                              type="number"
-                              min="0"
-                              value={editSellerPrice}
-                              onChange={(e) =>
-                                setEditSellerPrice(parseFloat(e.target.value) || 0)
-                              }
-                              className="w-20 px-1.5 py-1 text-right bg-white border border-zinc-300 rounded text-xs focus:outline-none focus:border-zinc-900"
-                            />
-                          </div>
+                          <input
+                            type="number"
+                            min="0"
+                            value={editSellerPrice}
+                            onChange={(e) =>
+                              setEditSellerPrice(parseFloat(e.target.value) || 0)
+                            }
+                            className="w-16 px-1 py-0.5 text-right bg-white border border-zinc-300 rounded text-xs focus:outline-none"
+                          />
                         ) : (
-                          <span className="text-zinc-700">₹ {item.sellerPrice}</span>
+                          <span>₹ {item.sellerPrice}</span>
                         )}
                       </td>
 
                       {/* Listing Price */}
-                      <td className="py-3 px-4 text-right font-medium">
+                      <td className="py-1.5 px-3 text-right font-mono font-medium text-zinc-900">
                         {isEditing ? (
-                          <div className="flex items-center justify-end gap-1">
-                            <span>₹</span>
-                            <input
-                              type="number"
-                              min="0"
-                              value={editListingPrice}
-                              onChange={(e) =>
-                                setEditListingPrice(parseFloat(e.target.value) || 0)
-                              }
-                              className="w-20 px-1.5 py-1 text-right bg-white border border-zinc-300 rounded text-xs focus:outline-none focus:border-zinc-900"
-                            />
-                          </div>
+                          <input
+                            type="number"
+                            min="0"
+                            value={editListingPrice}
+                            onChange={(e) =>
+                              setEditListingPrice(parseFloat(e.target.value) || 0)
+                            }
+                            className="w-16 px-1 py-0.5 text-right bg-white border border-zinc-300 rounded text-xs focus:outline-none"
+                          />
                         ) : (
-                          <span className="text-zinc-900">₹ {item.listingPrice}</span>
+                          <span>₹ {item.listingPrice}</span>
                         )}
                       </td>
 
                       {/* Gross Margin */}
-                      <td className="py-3 px-4 text-right">
-                        <div className="font-semibold text-zinc-900">
+                      <td className="py-1.5 px-3 text-right font-mono">
+                        <div className="font-semibold text-zinc-900 text-xs">
                           ₹ {marginVal}
                         </div>
                         <div
-                          className={`text-[10px] font-medium ${
+                          className={`text-[9px] ${
                             marginPct >= 30
-                              ? "text-emerald-600"
+                              ? "text-emerald-700"
                               : marginPct > 10
                               ? "text-zinc-500"
                               : "text-rose-600"
@@ -702,39 +650,39 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-1.5 px-3 text-center">
                         {isEditing ? (
                           <div className="flex items-center justify-center gap-1">
                             <button
                               onClick={() => handleSaveEdit(item.id)}
                               title="Save"
-                              className="p-1 rounded hover:bg-emerald-50 text-emerald-600 transition"
+                              className="p-0.5 rounded text-emerald-600 hover:bg-emerald-50"
                             >
                               <Check className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => setEditingId(null)}
                               title="Cancel"
-                              className="p-1 rounded hover:bg-zinc-100 text-zinc-400 transition"
+                              className="p-0.5 rounded text-zinc-400 hover:bg-zinc-100"
                             >
                               <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-center gap-1 opacity-60 group-hover:opacity-100 transition">
+                          <div className="flex items-center justify-center gap-1 opacity-40 group-hover:opacity-100 transition">
                             <button
                               onClick={() => handleStartEdit(item)}
-                              title="Edit Stock or Price"
-                              className="p-1 rounded hover:bg-zinc-100 text-zinc-500 hover:text-zinc-900 transition"
+                              title="Edit Stock or Cost"
+                              className="p-1 rounded text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                             >
-                              <Edit2 className="w-3.5 h-3.5" />
+                              <Edit2 className="w-3 h-3" />
                             </button>
                             <button
                               onClick={() => handleDeleteItem(item.id)}
-                              title="Delete"
-                              className="p-1 rounded hover:bg-rose-50 text-zinc-400 hover:text-rose-600 transition"
+                              title="Delete SKU"
+                              className="p-1 rounded text-zinc-400 hover:text-rose-600 hover:bg-rose-50"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
                         )}
@@ -750,40 +698,39 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
 
       {/* ================= MODAL: File Column Mapping & Preview ================= */}
       {isUploadOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-zinc-200 rounded-2xl max-w-xl w-full p-6 shadow-xl space-y-5 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white border border-zinc-200/90 rounded-xl max-w-lg w-full p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
               <div>
-                <h3 className="font-semibold text-base text-zinc-900">
-                  Process & Map Inventory File
+                <h3 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider font-mono">
+                  Map File Columns
                 </h3>
-                <p className="text-xs text-zinc-500 mt-0.5">
-                  Parsed {uploadedRows.length} rows. Confirm how your file columns match.
+                <p className="text-[11px] text-zinc-500 mt-0.5">
+                  Parsed {uploadedRows.length} rows. Verify matched headers.
                 </p>
               </div>
               <button
                 onClick={() => setIsUploadOpen(false)}
-                className="text-zinc-400 hover:text-zinc-700 p-1 rounded-lg"
+                className="text-zinc-400 hover:text-zinc-700 p-1 rounded"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
             {uploadError && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-xs">
+              <div className="p-2 bg-rose-50 border border-rose-200 text-rose-700 rounded text-xs">
                 {uploadError}
               </div>
             )}
 
-            {/* Default Channel fallback */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-700">
-                Default Channel (if column not present)
+              <label className="text-[11px] font-medium text-zinc-700">
+                Default Channel
               </label>
               <select
                 value={defaultUploadChannel}
                 onChange={(e) => setDefaultUploadChannel(e.target.value)}
-                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                className="w-full bg-zinc-50 border border-zinc-200 rounded px-2.5 py-1 text-xs text-zinc-900 focus:outline-none"
               >
                 <option value="Amazon">Amazon.in</option>
                 <option value="Flipkart">Flipkart</option>
@@ -791,20 +738,19 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
               </select>
             </div>
 
-            {/* Column Mapping Selectors */}
-            <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-1">
+            <div className="grid grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1 text-xs">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">
-                  SKU Column <span className="text-rose-500">*</span>
+                <label className="text-[11px] font-medium text-zinc-700">
+                  SKU Column *
                 </label>
                 <select
                   value={columnMapping.sku}
                   onChange={(e) =>
                     setColumnMapping({ ...columnMapping, sku: e.target.value })
                   }
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded px-2 py-1 text-xs text-zinc-900 focus:outline-none"
                 >
-                  <option value="">-- Select Column --</option>
+                  <option value="">-- Select --</option>
                   {uploadedHeaders.map((h) => (
                     <option key={h} value={h}>
                       {h}
@@ -814,17 +760,17 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">
-                  Product Title Column
+                <label className="text-[11px] font-medium text-zinc-700">
+                  Product Title
                 </label>
                 <select
                   value={columnMapping.title}
                   onChange={(e) =>
                     setColumnMapping({ ...columnMapping, title: e.target.value })
                   }
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded px-2 py-1 text-xs text-zinc-900 focus:outline-none"
                 >
-                  <option value="">-- Select Column --</option>
+                  <option value="">-- Select --</option>
                   {uploadedHeaders.map((h) => (
                     <option key={h} value={h}>
                       {h}
@@ -834,17 +780,17 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">
-                  Stock / Quantity Column
+                <label className="text-[11px] font-medium text-zinc-700">
+                  Stock Qty
                 </label>
                 <select
                   value={columnMapping.stock}
                   onChange={(e) =>
                     setColumnMapping({ ...columnMapping, stock: e.target.value })
                   }
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded px-2 py-1 text-xs text-zinc-900 focus:outline-none"
                 >
-                  <option value="">-- Select Column --</option>
+                  <option value="">-- Select --</option>
                   {uploadedHeaders.map((h) => (
                     <option key={h} value={h}>
                       {h}
@@ -854,8 +800,8 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">
-                  Listing Price Column
+                <label className="text-[11px] font-medium text-zinc-700">
+                  Listing Price
                 </label>
                 <select
                   value={columnMapping.listingPrice}
@@ -865,52 +811,9 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
                       listingPrice: e.target.value
                     })
                   }
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded px-2 py-1 text-xs text-zinc-900 focus:outline-none"
                 >
-                  <option value="">-- Select Column --</option>
-                  {uploadedHeaders.map((h) => (
-                    <option key={h} value={h}>
-                      {h}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">
-                  Seller Cost (COGS) Column
-                </label>
-                <select
-                  value={columnMapping.sellerPrice}
-                  onChange={(e) =>
-                    setColumnMapping({
-                      ...columnMapping,
-                      sellerPrice: e.target.value
-                    })
-                  }
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
-                >
-                  <option value="">-- (Optional / Default 45%) --</option>
-                  {uploadedHeaders.map((h) => (
-                    <option key={h} value={h}>
-                      {h}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">
-                  Channel Column
-                </label>
-                <select
-                  value={columnMapping.channel}
-                  onChange={(e) =>
-                    setColumnMapping({ ...columnMapping, channel: e.target.value })
-                  }
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
-                >
-                  <option value="">-- (Optional / Use Default) --</option>
+                  <option value="">-- Select --</option>
                   {uploadedHeaders.map((h) => (
                     <option key={h} value={h}>
                       {h}
@@ -920,19 +823,18 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-zinc-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
               <button
                 type="button"
                 onClick={() => setIsUploadOpen(false)}
-                className="px-3.5 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition"
+                className="px-3 py-1 text-xs font-medium text-zinc-600 hover:text-zinc-900 rounded"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={confirmImport}
-                className="px-4 py-2 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition"
+                className="px-3.5 py-1 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded transition"
               >
                 Import {uploadedRows.length} SKUs
               </button>
@@ -943,52 +845,52 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
 
       {/* ================= MODAL: Manual Add SKU ================= */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-zinc-200 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white border border-zinc-200/90 rounded-xl max-w-sm w-full p-4 shadow-2xl space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
-              <h3 className="font-semibold text-sm text-zinc-900">
-                Add New Inventory SKU
+              <h3 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider font-mono">
+                New SKU Entry
               </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
                 className="text-zinc-400 hover:text-zinc-700 p-1"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <form onSubmit={handleAddManualItem} className="space-y-3">
+            <form onSubmit={handleAddManualItem} className="space-y-2.5 text-xs">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">SKU Code *</label>
+                <label className="text-[11px] font-medium text-zinc-700">SKU Code *</label>
                 <input
                   type="text"
                   required
                   value={newItem.sku}
                   onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
                   placeholder="e.g. AMZ-BAG-BLK-01"
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900 uppercase"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded px-2.5 py-1 font-mono uppercase focus:bg-white focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">Product Title *</label>
+                <label className="text-[11px] font-medium text-zinc-700">Product Title *</label>
                 <input
                   type="text"
                   required
                   value={newItem.title}
                   onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
-                  placeholder="e.g. Leather Laptop Backpack Waterproof"
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  placeholder="e.g. Leather Laptop Backpack"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded px-2.5 py-1 focus:bg-white focus:outline-none"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-zinc-700">Channel</label>
+                  <label className="text-[11px] font-medium text-zinc-700">Channel</label>
                   <select
                     value={newItem.channel}
                     onChange={(e) => setNewItem({ ...newItem, channel: e.target.value })}
-                    className="w-full bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded px-2 py-1 focus:bg-white focus:outline-none"
                   >
                     <option value="Amazon">Amazon</option>
                     <option value="Flipkart">Flipkart</option>
@@ -997,7 +899,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-zinc-700">Stock Qty</label>
+                  <label className="text-[11px] font-medium text-zinc-700">Stock</label>
                   <input
                     type="number"
                     min="0"
@@ -1008,16 +910,14 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
                         stock: parseInt(e.target.value, 10) || 0
                       })
                     }
-                    className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded px-2 py-1 font-mono focus:bg-white focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-zinc-700">
-                    Seller Cost (COGS) ₹
-                  </label>
+                  <label className="text-[11px] font-medium text-zinc-700">Cost (COGS) ₹</label>
                   <input
                     type="number"
                     min="0"
@@ -1028,15 +928,12 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
                         sellerPrice: parseFloat(e.target.value) || 0
                       })
                     }
-                    placeholder="350"
-                    className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded px-2 py-1 font-mono focus:bg-white focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-zinc-700">
-                    Listing Price ₹
-                  </label>
+                  <label className="text-[11px] font-medium text-zinc-700">Price ₹</label>
                   <input
                     type="number"
                     min="0"
@@ -1047,25 +944,24 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ session }) => {
                         listingPrice: parseFloat(e.target.value) || 0
                       })
                     }
-                    placeholder="899"
-                    className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded px-2 py-1 font-mono focus:bg-white focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-zinc-100">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-3.5 py-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition"
+                  className="px-2.5 py-1 text-xs text-zinc-600 hover:text-zinc-900"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition"
+                  className="px-3.5 py-1 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded transition"
                 >
-                  Add SKU
+                  Save SKU
                 </button>
               </div>
             </form>

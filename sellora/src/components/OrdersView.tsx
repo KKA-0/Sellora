@@ -7,9 +7,7 @@ import {
   Download,
   CheckCircle2,
   AlertTriangle,
-  Clock,
   Truck,
-  IndianRupee,
   ShieldAlert,
   X,
   PackageCheck,
@@ -211,7 +209,6 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
     .filter((o) => o.returnDetails?.claimStatus === "pending")
     .reduce((acc, curr) => acc + (curr.returnDetails?.claimAmount || curr.orderValue), 0);
 
-  // Status updates for Returns
   const updateReturnStatus = (orderId: string, newReturnStatus: ReturnStatus) => {
     setOrders((prev) =>
       prev.map((o) => {
@@ -260,7 +257,6 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
     setSelectedOrderForClaim(null);
   };
 
-  // Upload parser
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -372,7 +368,6 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
     document.body.removeChild(link);
   };
 
-  // Filtered dataset
   const filteredOrders = orders.filter((o) => {
     const matchesSearch =
       o.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -406,8 +401,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
   });
 
   return (
-    <div className="space-y-6">
-      {/* Hidden file input */}
+    <div className="space-y-3 font-sans">
       <input
         type="file"
         ref={fileInputRef}
@@ -416,209 +410,122 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
         className="hidden"
       />
 
-      {/* Header & Sub-Tab Switcher */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">
-              {activeTab === "orders" ? "Orders & Shipments" : "Returns & RTO Tracker"}
-            </h1>
-          </div>
-          <p className="text-xs text-zinc-500">
-            {activeTab === "orders"
-              ? "Track order fulfillment, sales revenues, and interstate dispatch records."
-              : "Monitor reverse logistics, courier RTOs, customer returns, and filed claims."}
-          </p>
-        </div>
-
-        {/* Tab pills & Action buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Segmented Tab Control */}
-          <div className="flex bg-zinc-100 p-1 rounded-xl border border-zinc-200/70 text-xs">
-            <button
-              onClick={() => setActiveTab("orders")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition ${
-                activeTab === "orders"
-                  ? "bg-white text-zinc-900 shadow-xs"
-                  : "text-zinc-500 hover:text-zinc-900"
-              }`}
-            >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span>All Orders</span>
-              <span className="text-[10px] bg-zinc-200/70 text-zinc-700 px-1.5 py-0.2 rounded-full">
-                {totalOrders}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("returns")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition ${
-                activeTab === "returns"
-                  ? "bg-white text-zinc-900 shadow-xs"
-                  : "text-zinc-500 hover:text-zinc-900"
-              }`}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Returns & RTO</span>
-              {totalReturnsCount > 0 && (
-                <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-1.5 py-0.2 rounded-full">
-                  {totalReturnsCount}
-                </span>
-              )}
-            </button>
-          </div>
-
-          <button
-            onClick={downloadSampleTemplate}
-            title="Download CSV Template"
-            className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 bg-white hover:bg-zinc-50 border border-zinc-200 px-3 py-2 rounded-lg transition shadow-xs"
-          >
-            <Download className="w-3.5 h-3.5 text-zinc-500" />
-            <span className="hidden md:inline">Template</span>
-          </button>
-
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 px-3.5 py-2 rounded-lg transition shadow-xs"
-          >
-            <UploadCloud className="w-4 h-4" />
-            <span>Upload Orders Sheet</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Summary Cards */}
+      {/* ================= COMPACT DESKTOP STAT RIBBON ================= */}
       {activeTab === "orders" ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-              <span>Total Orders</span>
-              <ShoppingBag className="w-3.5 h-3.5 text-zinc-400" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-zinc-50 border border-zinc-200/90 rounded-lg p-2.5 font-mono text-xs">
+          <div className="border-r border-zinc-200/80 pr-2">
+            <div className="text-[10px] text-zinc-400 uppercase">Total Orders</div>
+            <div className="font-semibold text-zinc-900 mt-0.5">
+              {totalOrders} Orders <span className="text-[10px] text-zinc-400 font-normal">All channels</span>
             </div>
-            <div className="text-xl font-semibold text-zinc-900 mt-1">{totalOrders}</div>
-            <div className="text-[11px] text-zinc-400 mt-0.5">Across all platforms</div>
           </div>
 
-          <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-              <span>Gross Order Value</span>
-              <IndianRupee className="w-3.5 h-3.5 text-zinc-400" />
-            </div>
-            <div className="text-xl font-semibold text-zinc-900 mt-1">
+          <div className="border-r border-zinc-200/80 pr-2">
+            <div className="text-[10px] text-zinc-400 uppercase">Gross Order Value</div>
+            <div className="font-semibold text-zinc-900 mt-0.5">
               ₹ {grossSales.toLocaleString("en-IN")}
             </div>
-            <div className="text-[11px] text-emerald-600 font-medium mt-0.5">
-              Active orders
+          </div>
+
+          <div className="border-r border-zinc-200/80 pr-2">
+            <div className="text-[10px] text-amber-600 uppercase">Return / RTO Rate</div>
+            <div className="font-semibold text-amber-700 mt-0.5">
+              {returnRatePct}% <span className="text-[10px] text-zinc-400 font-normal">({totalReturnsCount} units)</span>
             </div>
           </div>
 
-          <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-              <span>Return / RTO Rate</span>
-              <RotateCcw className="w-3.5 h-3.5 text-amber-500" />
+          <div>
+            <div className="text-[10px] text-zinc-400 uppercase">In-Transit (Dispatched)</div>
+            <div className="font-semibold text-zinc-800 mt-0.5">
+              {orders.filter((o) => o.status === "shipped").length} shipments
             </div>
-            <div className="text-xl font-semibold text-zinc-900 mt-1">
-              {returnRatePct}%
-            </div>
-            <div className="text-[11px] text-amber-600 mt-0.5">
-              {totalReturnsCount} returned units
-            </div>
-          </div>
-
-          <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-              <span>Shipped In-Transit</span>
-              <Truck className="w-3.5 h-3.5 text-zinc-400" />
-            </div>
-            <div className="text-xl font-semibold text-zinc-900 mt-1">
-              {orders.filter((o) => o.status === "shipped").length}
-            </div>
-            <div className="text-[11px] text-zinc-400 mt-0.5">Awaiting delivery</div>
           </div>
         </div>
       ) : (
-        /* Returns Specific KPIs */
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-              <span>Total Returns</span>
-              <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
-            </div>
-            <div className="text-xl font-semibold text-zinc-900 mt-1">
-              {totalReturnsCount}
-            </div>
-            <div className="text-[11px] text-zinc-400 mt-0.5">
-              {orders.filter((o) => o.status === "rto").length} RTO •{" "}
-              {orders.filter((o) => o.status === "customer_return").length} Customer
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-zinc-50 border border-zinc-200/90 rounded-lg p-2.5 font-mono text-xs">
+          <div className="border-r border-zinc-200/80 pr-2">
+            <div className="text-[10px] text-zinc-400 uppercase">Total Returns Count</div>
+            <div className="font-semibold text-zinc-900 mt-0.5">
+              {totalReturnsCount} Units <span className="text-[10px] text-zinc-400 font-normal">({orders.filter((o) => o.status === "rto").length} RTO)</span>
             </div>
           </div>
 
-          <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-              <span>Reverse Logistics Cost</span>
-              <IndianRupee className="w-3.5 h-3.5 text-rose-500" />
-            </div>
-            <div className="text-xl font-semibold text-rose-600 mt-1">
-              ₹ {totalReverseShippingLeakage.toLocaleString("en-IN")}
-            </div>
-            <div className="text-[11px] text-rose-500/80 mt-0.5">Courier fee leakage</div>
-          </div>
-
-          <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-              <span>Pending Claims</span>
-              <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
-            </div>
-            <div className="text-xl font-semibold text-zinc-900 mt-1">
-              {pendingClaimsCount}
-            </div>
-            <div className="text-[11px] text-amber-600 font-medium mt-0.5">
-              ₹ {pendingClaimsAmount.toLocaleString("en-IN")} filed
+          <div className="border-r border-zinc-200/80 pr-2">
+            <div className="text-[10px] text-rose-500 uppercase">Reverse Logistics Cost</div>
+            <div className="font-semibold text-rose-600 mt-0.5">
+              - ₹ {totalReverseShippingLeakage.toLocaleString("en-IN")}
             </div>
           </div>
 
-          <div className="bg-white border border-zinc-200 p-4 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
-              <span>Restocked to Inventory</span>
-              <PackageCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="border-r border-zinc-200/80 pr-2">
+            <div className="text-[10px] text-amber-600 uppercase">Pending Claims</div>
+            <div className="font-semibold text-amber-700 mt-0.5">
+              {pendingClaimsCount} Claims <span className="text-[10px] text-zinc-400 font-normal">(₹ {pendingClaimsAmount})</span>
             </div>
-            <div className="text-xl font-semibold text-emerald-600 mt-1">
-              {
-                returnsAndRTOList.filter(
-                  (o) => o.returnDetails?.returnStatus === "restocked"
-                ).length
-              }
+          </div>
+
+          <div>
+            <div className="text-[10px] text-emerald-600 uppercase font-semibold">Restocked Units</div>
+            <div className="font-semibold text-emerald-700 mt-0.5">
+              {returnsAndRTOList.filter((o) => o.returnDetails?.returnStatus === "restocked").length} Restocked
             </div>
-            <div className="text-[11px] text-zinc-400 mt-0.5">Verified healthy units</div>
           </div>
         </div>
       )}
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white border border-zinc-200 rounded-xl p-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-xs">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by Order ID, SKU, product, or customer state..."
-            className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:bg-white transition"
-          />
-        </div>
+      {/* ================= DENSE TOOLBAR ================= */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-white border border-zinc-200/90 rounded-lg p-2 shadow-2xs">
+        {/* Left: Tab Switcher & Search */}
+        <div className="flex items-center gap-2 flex-1">
+          {/* Segmented Tab */}
+          <div className="flex bg-zinc-100 p-0.5 rounded border border-zinc-200 text-xs">
+            <button
+              onClick={() => setActiveTab("orders")}
+              className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium transition ${
+                activeTab === "orders"
+                  ? "bg-white text-zinc-900 shadow-2xs font-semibold"
+                  : "text-zinc-500 hover:text-zinc-800"
+              }`}
+            >
+              <ShoppingBag className="w-3 h-3" />
+              <span>Orders ({totalOrders})</span>
+            </button>
 
-        <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab("returns")}
+              className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium transition ${
+                activeTab === "returns"
+                  ? "bg-white text-zinc-900 shadow-2xs font-semibold"
+                  : "text-zinc-500 hover:text-zinc-800"
+              }`}
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Returns & RTO ({totalReturnsCount})</span>
+            </button>
+          </div>
+
+          {/* Search Box */}
+          <div className="relative flex-1 max-w-xs">
+            <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Order ID, SKU, State..."
+              className="w-full pl-8 pr-2.5 py-1 bg-zinc-50 border border-zinc-200 rounded text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:bg-white transition"
+            />
+          </div>
+
           {/* Channel Filter */}
-          <div className="flex items-center bg-zinc-100 p-0.5 rounded-lg border border-zinc-200/70 text-xs">
+          <div className="flex items-center bg-zinc-100 p-0.5 rounded border border-zinc-200 text-xs">
             {["All", "Amazon", "Flipkart", "Meesho"].map((ch) => (
               <button
                 key={ch}
                 onClick={() => setChannelFilter(ch)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
                   channelFilter === ch
-                    ? "bg-white text-zinc-900 shadow-xs"
-                    : "text-zinc-500 hover:text-zinc-900"
+                    ? "bg-white text-zinc-900 shadow-2xs font-semibold"
+                    : "text-zinc-500 hover:text-zinc-800"
                 }`}
               >
                 {ch}
@@ -626,71 +533,88 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
             ))}
           </div>
 
-          {/* Sub-status filters */}
+          {/* Status selector */}
           {activeTab === "orders" ? (
             <select
               value={orderStatusFilter}
               onChange={(e) => setOrderStatusFilter(e.target.value)}
-              className="bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-700 focus:outline-none focus:border-zinc-900 transition"
+              className="bg-zinc-50 border border-zinc-200 rounded px-2 py-1 text-xs text-zinc-700 focus:outline-none"
             >
-              <option value="All">All Order Statuses</option>
+              <option value="All">All Statuses</option>
               <option value="delivered">Delivered</option>
-              <option value="shipped">Shipped (In Transit)</option>
-              <option value="returns">Returns & RTO</option>
+              <option value="shipped">Shipped</option>
+              <option value="returns">Returns / RTO</option>
               <option value="cancelled">Cancelled</option>
             </select>
           ) : (
             <select
               value={returnStatusFilter}
               onChange={(e) => setReturnStatusFilter(e.target.value)}
-              className="bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-700 focus:outline-none focus:border-zinc-900 transition"
+              className="bg-zinc-50 border border-zinc-200 rounded px-2 py-1 text-xs text-zinc-700 focus:outline-none"
             >
               <option value="All">All Return Stages</option>
-              <option value="in_transit">In-Transit (Reverse)</option>
-              <option value="received">Received at Warehouse</option>
-              <option value="damaged">Damaged / Wrong Item</option>
+              <option value="in_transit">In-Transit</option>
+              <option value="received">Warehouse Received</option>
+              <option value="damaged">Damaged Box</option>
               <option value="claim_filed">Claim Filed</option>
               <option value="restocked">Restocked</option>
             </select>
           )}
         </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={downloadSampleTemplate}
+            title="Download CSV Template"
+            className="flex items-center gap-1 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 bg-white hover:bg-zinc-100 border border-zinc-200 px-2.5 py-1 rounded transition"
+          >
+            <Download className="w-3 h-3 text-zinc-400" />
+            <span>Template</span>
+          </button>
+
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1 text-[11px] font-medium text-white bg-zinc-900 hover:bg-zinc-800 px-2.5 py-1 rounded transition"
+          >
+            <UploadCloud className="w-3 h-3" />
+            <span>Upload Orders Sheet</span>
+          </button>
+        </div>
       </div>
 
-      {/* Main Table */}
-      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+      {/* ================= DATA GRID / ORDERS TABLE ================= */}
+      <div className="bg-white border border-zinc-200/90 rounded-lg overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-zinc-200 bg-zinc-50/60 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
-                <th className="py-3 px-4">Order ID & Date</th>
-                <th className="py-3 px-4">Channel</th>
-                <th className="py-3 px-4">SKU & Product</th>
-                <th className="py-3 px-4 text-center">Qty</th>
-                <th className="py-3 px-4 text-right">Order Value</th>
-                <th className="py-3 px-4">Destination</th>
+              <tr className="border-b border-zinc-200/90 bg-zinc-50 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider font-mono">
+                <th className="py-2 px-3">Order ID & Date</th>
+                <th className="py-2 px-3">Channel</th>
+                <th className="py-2 px-3">SKU & Item</th>
+                <th className="py-2 px-3 text-center">Qty</th>
+                <th className="py-2 px-3 text-right">Order Value</th>
+                <th className="py-2 px-3">Destination</th>
                 {activeTab === "orders" ? (
-                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-2 px-3 text-center">Status</th>
                 ) : (
                   <>
-                    <th className="py-3 px-4">Return Reason & Type</th>
-                    <th className="py-3 px-4 text-right">Courier Fee</th>
-                    <th className="py-3 px-4 text-center">Return Status & Action</th>
+                    <th className="py-2 px-3">Return Reason</th>
+                    <th className="py-2 px-3 text-right">Courier Fee</th>
+                    <th className="py-2 px-3 text-center w-36">Return Stage</th>
                   </>
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 text-xs text-zinc-800">
+            <tbody className="divide-y divide-zinc-100 text-xs text-zinc-800 font-sans">
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td
                     colSpan={activeTab === "orders" ? 7 : 9}
                     className="text-center py-12 text-zinc-400"
                   >
-                    <ShoppingBag className="w-8 h-8 mx-auto text-zinc-300 mb-2" />
-                    <div>No orders found.</div>
-                    <p className="text-[11px] text-zinc-400 mt-1">
-                      Upload an order/return report or adjust search filters.
-                    </p>
+                    <ShoppingBag className="w-6 h-6 mx-auto text-zinc-300 mb-1" />
+                    <div className="text-xs">No orders matching filter criteria</div>
                   </td>
                 </tr>
               ) : (
@@ -698,179 +622,161 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
                   return (
                     <tr
                       key={order.id}
-                      className="hover:bg-zinc-50/70 transition-colors"
+                      className="hover:bg-zinc-50/80 transition-colors"
                     >
                       {/* Order ID & Date */}
-                      <td className="py-3 px-4">
-                        <div className="font-mono font-medium text-zinc-900">
+                      <td className="py-1.5 px-3">
+                        <div className="font-mono text-[11px] font-semibold text-zinc-900">
                           {order.orderId}
                         </div>
-                        <div className="text-[11px] text-zinc-400 mt-0.5 font-mono">
+                        <div className="text-[10px] text-zinc-400 font-mono">
                           {order.date}
                         </div>
                       </td>
 
                       {/* Channel */}
-                      <td className="py-3 px-4">
-                        <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200/60">
+                      <td className="py-1.5 px-3">
+                        <span className="inline-block px-1.5 py-0.2 rounded text-[10px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">
                           {order.channel}
                         </span>
                       </td>
 
                       {/* SKU & Title */}
-                      <td className="py-3 px-4 max-w-xs">
-                        <div className="font-mono text-[11px] font-semibold text-zinc-900">
+                      <td className="py-1.5 px-3 max-w-xs">
+                        <div className="font-mono text-[11px] font-medium text-zinc-900">
                           {order.sku}
                         </div>
-                        <div className="truncate text-zinc-600 mt-0.5" title={order.title}>
+                        <div className="truncate text-xs text-zinc-600" title={order.title}>
                           {order.title}
                         </div>
                       </td>
 
-                      {/* Quantity */}
-                      <td className="py-3 px-4 text-center font-medium text-zinc-700">
+                      {/* Qty */}
+                      <td className="py-1.5 px-3 text-center font-mono text-zinc-700">
                         {order.quantity}
                       </td>
 
-                      {/* Order Value */}
-                      <td className="py-3 px-4 text-right font-semibold text-zinc-900">
+                      {/* Value */}
+                      <td className="py-1.5 px-3 text-right font-mono font-semibold text-zinc-900">
                         ₹ {order.orderValue}
                       </td>
 
-                      {/* Destination State */}
-                      <td className="py-3 px-4">
-                        <span className="text-zinc-600 text-xs">
-                          {order.customerState}
-                        </span>
+                      {/* Destination */}
+                      <td className="py-1.5 px-3 text-xs text-zinc-600">
+                        {order.customerState}
                       </td>
 
-                      {/* Order View: Status */}
+                      {/* Order Status */}
                       {activeTab === "orders" && (
-                        <td className="py-3 px-4 text-center">
+                        <td className="py-1.5 px-3 text-center font-mono text-[10px]">
                           {order.status === "delivered" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span>Delivered</span>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+                              <CheckCircle2 className="w-2.5 h-2.5" />
+                              Delivered
                             </span>
                           )}
                           {order.status === "shipped" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                              <Truck className="w-3 h-3" />
-                              <span>Shipped</span>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">
+                              <Truck className="w-2.5 h-2.5" />
+                              Shipped
                             </span>
                           )}
                           {order.status === "customer_return" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                              <RotateCcw className="w-3 h-3" />
-                              <span>Customer Return</span>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">
+                              <RotateCcw className="w-2.5 h-2.5" />
+                              Cust Return
                             </span>
                           )}
                           {order.status === "rto" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
-                              <AlertTriangle className="w-3 h-3" />
-                              <span>Courier RTO</span>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200 font-medium">
+                              <AlertTriangle className="w-2.5 h-2.5" />
+                              Courier RTO
                             </span>
                           )}
                           {order.status === "cancelled" && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-500">
+                            <span className="inline-flex items-center px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-500 font-medium">
                               Cancelled
                             </span>
                           )}
                         </td>
                       )}
 
-                      {/* Returns Specific Columns */}
+                      {/* Returns Columns */}
                       {activeTab === "returns" && (
                         <>
-                          {/* Return Reason & Type */}
-                          <td className="py-3 px-4 max-w-xs">
-                            <div className="flex items-center gap-1.5 mb-0.5">
+                          <td className="py-1.5 px-3 max-w-xs">
+                            <div className="flex items-center gap-1 mb-0.5">
                               {order.status === "rto" ? (
-                                <span className="px-1.5 py-0.2 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-800">
-                                  RTO (Courier Return)
+                                <span className="px-1 py-0.2 rounded text-[9px] font-mono font-bold uppercase bg-rose-100 text-rose-800">
+                                  RTO
                                 </span>
                               ) : (
-                                <span className="px-1.5 py-0.2 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800">
-                                  Customer Return
+                                <span className="px-1 py-0.2 rounded text-[9px] font-mono font-bold uppercase bg-amber-100 text-amber-800">
+                                  Return
                                 </span>
                               )}
                             </div>
-                            <div className="text-zinc-700 truncate" title={order.returnDetails?.returnReason}>
-                              {order.returnDetails?.returnReason || "Reason unspecified"}
+                            <div className="text-zinc-700 truncate text-[11px]" title={order.returnDetails?.returnReason}>
+                              {order.returnDetails?.returnReason || "Customer return"}
                             </div>
                           </td>
 
-                          {/* Reverse Shipping Fee Leakage */}
-                          <td className="py-3 px-4 text-right">
-                            <span className="font-medium text-rose-600">
-                              - ₹ {order.returnDetails?.reverseShippingFee || 0}
-                            </span>
+                          <td className="py-1.5 px-3 text-right font-mono text-rose-600 font-medium">
+                            - ₹ {order.returnDetails?.reverseShippingFee || 0}
                           </td>
 
-                          {/* Return Status & Actions */}
-                          <td className="py-3 px-4 text-center">
-                            <div className="flex items-center justify-center gap-1.5">
-                              {/* Stage Badge */}
+                          <td className="py-1.5 px-3 text-center">
+                            <div className="flex items-center justify-center gap-1 font-mono text-[10px]">
                               {order.returnDetails?.returnStatus === "in_transit" && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                                  <Truck className="w-3 h-3" />
-                                  <span>In Transit</span>
+                                <span className="px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">
+                                  In Transit
                                 </span>
                               )}
-
                               {order.returnDetails?.returnStatus === "received" && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                                  <Clock className="w-3 h-3" />
-                                  <span>Received (Unverified)</span>
+                                <span className="px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">
+                                  Received
                                 </span>
                               )}
-
                               {order.returnDetails?.returnStatus === "restocked" && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                  <CheckCircle2 className="w-3 h-3" />
-                                  <span>Restocked</span>
+                                <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+                                  Restocked
                                 </span>
                               )}
-
                               {order.returnDetails?.returnStatus === "damaged" && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
-                                  <AlertTriangle className="w-3 h-3" />
-                                  <span>Damaged</span>
+                                <span className="px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200 font-medium">
+                                  Damaged
                                 </span>
                               )}
-
                               {order.returnDetails?.returnStatus === "claim_filed" && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                                  <ShieldAlert className="w-3 h-3" />
-                                  <span>Claim Filed</span>
+                                <span className="px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200 font-medium">
+                                  Claim Filed
                                 </span>
                               )}
 
-                              {/* Action Trigger */}
                               <div className="relative group/menu inline-block text-left">
-                                <button className="p-1 rounded hover:bg-zinc-100 text-zinc-500 hover:text-zinc-900 transition">
-                                  <ChevronDown className="w-3.5 h-3.5" />
+                                <button className="p-0.5 rounded text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100">
+                                  <ChevronDown className="w-3 h-3" />
                                 </button>
-                                <div className="hidden group-hover/menu:block absolute right-0 mt-1 w-44 bg-white border border-zinc-200 rounded-lg shadow-lg py-1 z-30 text-left text-xs font-normal">
+                                <div className="hidden group-hover/menu:block absolute right-0 mt-0.5 w-40 bg-white border border-zinc-200 rounded shadow-lg py-1 z-30 text-left text-xs font-sans">
                                   <button
                                     onClick={() => updateReturnStatus(order.orderId, "received")}
-                                    className="w-full px-3 py-1.5 hover:bg-zinc-50 text-zinc-700 text-left flex items-center gap-1.5"
+                                    className="w-full px-2.5 py-1 hover:bg-zinc-50 text-zinc-700 text-left text-[11px]"
                                   >
-                                    <span>Mark Received</span>
+                                    Mark Received
                                   </button>
                                   <button
                                     onClick={() => updateReturnStatus(order.orderId, "restocked")}
-                                    className="w-full px-3 py-1.5 hover:bg-zinc-50 text-emerald-700 text-left flex items-center gap-1.5"
+                                    className="w-full px-2.5 py-1 hover:bg-zinc-50 text-emerald-700 text-left text-[11px] flex items-center gap-1"
                                   >
-                                    <PackageCheck className="w-3.5 h-3.5" />
+                                    <PackageCheck className="w-3 h-3" />
                                     <span>Verify & Restock</span>
                                   </button>
                                   <button
                                     onClick={() => handleOpenClaimModal(order)}
-                                    className="w-full px-3 py-1.5 hover:bg-zinc-50 text-rose-700 text-left flex items-center gap-1.5"
+                                    className="w-full px-2.5 py-1 hover:bg-zinc-50 text-rose-700 text-left text-[11px] flex items-center gap-1"
                                   >
-                                    <ShieldAlert className="w-3.5 h-3.5" />
-                                    <span>File Dispute / Claim</span>
+                                    <ShieldAlert className="w-3 h-3" />
+                                    <span>File Claim</span>
                                   </button>
                                 </div>
                               </div>
@@ -887,44 +793,44 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
         </div>
       </div>
 
-      {/* ================= MODAL: File Marketplace Claim (SAFE-T / SPF / Meesho Dispute) ================= */}
+      {/* ================= MODAL: File Marketplace Claim ================= */}
       {selectedOrderForClaim && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-zinc-200 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white border border-zinc-200/90 rounded-xl max-w-sm w-full p-4 shadow-2xl space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
               <div>
-                <h3 className="font-semibold text-sm text-zinc-900">
-                  File Marketplace Claim / Dispute
+                <h3 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider font-mono">
+                  File Dispute / Claim
                 </h3>
-                <p className="text-xs text-zinc-500 mt-0.5">
-                  Order: {selectedOrderForClaim.orderId} ({selectedOrderForClaim.channel})
+                <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                  Order {selectedOrderForClaim.orderId} • {selectedOrderForClaim.channel}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedOrderForClaim(null)}
                 className="text-zinc-400 hover:text-zinc-700 p-1"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveClaim} className="space-y-3">
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 space-y-1">
-                <div className="font-semibold">
+            <form onSubmit={handleSaveClaim} className="space-y-2.5 text-xs">
+              <div className="p-2 bg-amber-50 border border-amber-200 rounded text-[11px] text-amber-800">
+                <span className="font-bold">
                   {selectedOrderForClaim.channel === "Amazon"
-                    ? "Amazon SAFE-T Claim Protocol"
+                    ? "Amazon SAFE-T Claim"
                     : selectedOrderForClaim.channel === "Flipkart"
-                    ? "Flipkart SPF (Seller Protection Fund)"
-                    : "Meesho Return Dispute Claim"}
-                </div>
-                <div className="text-[11px] text-amber-700">
-                  File this claim for damaged, empty box, or wrong items returned by the customer.
-                </div>
+                    ? "Flipkart SPF Protection"
+                    : "Meesho Dispute Ticket"}
+                </span>
+                <p className="text-[10px] text-amber-700 mt-0.5">
+                  Submit claim for wrong or damaged items delivered back to warehouse.
+                </p>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">
-                  Claim Reimbursement Amount (₹)
+                <label className="text-[11px] font-medium text-zinc-700 font-mono">
+                  Claim Value (₹)
                 </label>
                 <input
                   type="number"
@@ -932,36 +838,36 @@ export const OrdersView: React.FC<OrdersViewProps> = ({ session, initialTab = "o
                   required
                   value={claimAmountInput}
                   onChange={(e) => setClaimAmountInput(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded px-2.5 py-1 font-mono focus:bg-white focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-700">
-                  Damage Notes & Ticket ID
+                <label className="text-[11px] font-medium text-zinc-700">
+                  Damage Notes / Ticket ID
                 </label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   value={claimNotesInput}
                   onChange={(e) => setClaimNotesInput(e.target.value)}
-                  placeholder="e.g. Received package with broken seal and dented product. Ticket #884920 opened with seller support."
-                  className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  placeholder="e.g. Package seal broken, empty box returned."
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded px-2.5 py-1 focus:bg-white focus:outline-none text-xs"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-zinc-100">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
                 <button
                   type="button"
                   onClick={() => setSelectedOrderForClaim(null)}
-                  className="px-3.5 py-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition"
+                  className="px-2.5 py-1 text-xs text-zinc-600 hover:text-zinc-900"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition"
+                  className="px-3 py-1 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded transition"
                 >
-                  Submit Claim Record
+                  Record Claim
                 </button>
               </div>
             </form>
